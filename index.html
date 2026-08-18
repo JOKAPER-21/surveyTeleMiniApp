@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>VID Publish Test</title>
+</head>
+
+<body>
+
+    <h2>VID Publish</h2>
+
+    <form id="publishForm">
+
+        <p>
+            <label>CODE:</label><br>
+            <input type="text" id="code" required>
+        </p>
+
+        <p>
+            <label>NAME:</label><br>
+            <input type="text" id="name" required>
+        </p>
+
+        <p>
+            <label>COMMAND:</label><br>
+            <textarea id="command" rows="4" cols="40"></textarea>
+        </p>
+
+        <p>
+            <label>DATE:</label><br>
+            <input type="date" id="date">
+        </p>
+
+        <p>
+            <label>TIME:</label><br>
+            <input type="time" id="time">
+        </p>
+
+        <p>
+            <label>UPLOAD FILES:</label><br>
+            <input
+                type="file"
+                id="files"
+                multiple
+                accept=".dwg,.dxf,.csv,.txt"
+            >
+        </p>
+
+        <p id="fileList"></p>
+
+        <button type="submit">SUBMIT</button>
+
+    </form>
+
+    <hr>
+
+    <pre id="result"></pre>
+
+
+    <script>
+
+        // Set today's date and current time
+        const now = new Date();
+
+        const date = now.toISOString().split("T")[0];
+
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const time = hours + ":" + minutes;
+
+        document.getElementById("date").value = date;
+        document.getElementById("time").value = time;
+
+
+        // Show selected files
+        document.getElementById("files").addEventListener("change", function () {
+
+            let output = "Selected Files:\n";
+
+            for (const file of this.files) {
+                output += file.name + "\n";
+            }
+
+            document.getElementById("fileList").textContent = output;
+        });
+
+
+        // Submit test
+        document.getElementById("publishForm").addEventListener("submit", function (event) {
+
+            event.preventDefault();
+
+            const code = document.getElementById("code").value;
+            const name = document.getElementById("name").value;
+            const command = document.getElementById("command").value;
+            const date = document.getElementById("date").value;
+            const time = document.getElementById("time").value;
+            const files = document.getElementById("files").files;
+
+
+            let result = "";
+
+            result += "CODE: " + code + "\n";
+            result += "NAME: " + name + "\n";
+            result += "COMMAND: " + command + "\n";
+            result += "DATE: " + date + "\n";
+            result += "TIME: " + time + "\n\n";
+
+            result += "FILES:\n";
+
+            for (const file of files) {
+                result += "- " + file.name + "\n";
+            }
+
+
+            document.getElementById("result").textContent = result;
+
+            console.log(result);
+
+        });
+
+    </script>
+
+</body>
+</html>
