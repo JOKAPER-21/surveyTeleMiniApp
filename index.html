@@ -1,125 +1,660 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>VID Publish Test</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VID Publish Mini App</title>
+<style>
+  :root{
+    --blue-600:#4f5bd5;
+    --blue-500:#5b6ee8;
+    --blue-grad-start:#4361ee;
+    --blue-grad-end:#3f37c9;
+    --ink:#1a1d29;
+    --muted:#6b7280;
+    --border:#e5e7eb;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --field-bg:#f8f9fc;
+    --danger:#ef4444;
+    --danger-bg:#fef2f2;
+    --success:#16a34a;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:640px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Header */
+  header{
+    background:linear-gradient(120deg,var(--blue-grad-start),var(--blue-grad-end));
+    padding:18px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#fff;
+  }
+  .brand-icon{
+    width:34px;height:34px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,0.16);
+    border-radius:10px;
+  }
+  .brand-icon svg{width:18px;height:18px;}
+  .brand-title{
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  .badge{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:rgba(255,255,255,0.14);
+    color:#fff;
+    padding:7px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .badge svg{width:14px;height:14px;flex-shrink:0;}
+
+  main{
+    flex:1;
+    padding:18px 16px 90px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    padding:20px 18px;
+    box-shadow:0 1px 3px rgba(16,24,40,0.06),0 1px 2px rgba(16,24,40,0.04);
+    border:1px solid var(--border);
+  }
+
+  .field{margin-bottom:18px;}
+  .field:last-child{margin-bottom:0;}
+  label.field-label{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+    color:var(--ink);
+    margin-bottom:8px;
+  }
+  .required{color:var(--danger);}
+  .hint{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  .input-wrap{
+    display:flex;
+    align-items:center;
+    background:var(--field-bg);
+    border:1px solid var(--border);
+    border-radius:10px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .input-wrap:focus-within{
+    border-color:var(--blue-500);
+    box-shadow:0 0 0 3px rgba(91,110,232,0.15);
+    background:#fff;
+  }
+  .input-icon{
+    width:40px;
+    height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--blue-500);
+    flex-shrink:0;
+  }
+  .input-icon svg{width:17px;height:17px;}
+  .input-wrap input,
+  .input-wrap textarea{
+    flex:1;
+    border:none;
+    background:transparent;
+    outline:none;
+    font-size:14.5px;
+    color:var(--ink);
+    padding:12px 12px 12px 0;
+    font-family:inherit;
+    width:100%;
+  }
+  .input-wrap textarea{
+    resize:vertical;
+    min-height:70px;
+    padding-top:12px;
+  }
+  input::placeholder, textarea::placeholder{color:#9aa1b1;}
+
+  .row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width:420px){
+    .row2{grid-template-columns:1fr;}
+  }
+
+  input[type="date"], input[type="time"]{
+    color-scheme:light;
+  }
+
+  /* Upload area */
+  .dropzone{
+    border:2px dashed #c7cdf7;
+    background:#f7f8fe;
+    border-radius:14px;
+    padding:34px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition:background .15s,border-color .15s;
+    position:relative;
+  }
+  .dropzone:hover, .dropzone.dragover{
+    background:#eef0fd;
+    border-color:var(--blue-500);
+  }
+  .dropzone input[type="file"]{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+  }
+  .dropzone-icon{
+    width:44px;height:44px;
+    margin:0 auto 12px;
+    color:var(--blue-600);
+  }
+  .dropzone-icon svg{width:100%;height:100%;}
+  .dropzone-title{
+    color:var(--blue-600);
+    font-weight:700;
+    font-size:14.5px;
+    margin-bottom:6px;
+  }
+  .dropzone-sub{
+    color:var(--muted);
+    font-size:12.5px;
+    line-height:1.6;
+  }
+
+  .file-list{
+    margin-top:14px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .file-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 14px;
+    border-bottom:1px solid var(--border);
+    background:#fff;
+  }
+  .file-row:last-child{border-bottom:none;}
+  .file-icon{
+    width:32px;height:32px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    color:#fff;
+  }
+  .file-icon svg{width:16px;height:16px;}
+  .file-icon.dwg, .file-icon.dxf{background:#3b82f6;}
+  .file-icon.csv{background:#16a34a;}
+  .file-icon.txt, .file-icon.other{background:#9ca3af;}
+
+  .file-meta{flex:1;min-width:0;}
+  .file-name{
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .file-size{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:1px;
+  }
+  .file-remove{
+    width:28px;height:28px;
+    border-radius:7px;
+    border:none;
+    background:var(--danger-bg);
+    color:var(--danger);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .file-remove svg{width:13px;height:13px;}
+  .file-remove:hover{background:#fde2e2;}
+
+  .file-count-hint{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:10px;
+  }
+
+  /* Submit */
+  .submit-btn{
+    width:100%;
+    margin-top:22px;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(120deg,var(--blue-grad-start),var(--blue-grad-end));
+    color:#fff;
+    font-size:14.5px;
+    font-weight:700;
+    letter-spacing:0.4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(67,97,238,0.35);
+    transition:transform .1s, box-shadow .15s, opacity .15s;
+  }
+  .submit-btn svg{width:16px;height:16px;}
+  .submit-btn:active{transform:translateY(1px);}
+  .submit-btn:disabled{opacity:0.55;cursor:not-allowed;box-shadow:none;}
+
+  /* Info panel */
+  .info-card{
+    margin-top:18px;
+    background:#eef1fd;
+    border:1px solid #dbe1fb;
+    border-radius:14px;
+    padding:16px 16px 16px 14px;
+  }
+  .info-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--blue-600);
+    font-weight:700;
+    font-size:13.5px;
+    margin-bottom:10px;
+  }
+  .info-head svg{width:16px;height:16px;flex-shrink:0;}
+  .info-card ol{
+    margin:0;
+    padding-left:20px;
+    color:#3c4257;
+    font-size:12.8px;
+    line-height:1.9;
+  }
+
+  footer{
+    text-align:center;
+    padding:16px;
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.7;
+  }
+
+  /* Toast */
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:24px;
+    transform:translate(-50%,20px);
+    background:var(--ink);
+    color:#fff;
+    padding:12px 18px;
+    border-radius:10px;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s, transform .2s;
+    z-index:50;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    max-width:90%;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translate(-50%,0);
+  }
+  .toast svg{width:15px;height:15px;flex-shrink:0;color:#4ade80;}
+
+  .error-text{
+    color:var(--danger);
+    font-size:11.5px;
+    margin-top:6px;
+    display:none;
+  }
+  .field.has-error .input-wrap{
+    border-color:var(--danger);
+  }
+  .field.has-error .error-text{display:block;}
+</style>
 </head>
-
 <body>
+<div class="app">
 
-    <h2>VID Publish</h2>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="brand-title">VID PUBLISH MINI APP</span>
+    </div>
+    <div class="badge">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="2"/><path d="M12 16V12" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="8" r="1" fill="#fff"/></svg>
+      Telegram Mini App
+    </div>
+  </header>
 
-    <form id="publishForm">
+  <main>
+    <form id="publishForm" class="card" novalidate>
 
-        <p>
-            <label>CODE:</label><br>
-            <input type="text" id="code" required>
-        </p>
+      <div class="field" id="field-code">
+        <label class="field-label">Code <span class="required">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.59 13.41L13.42 20.58C13.23 20.77 13.01 20.92 12.77 21.02C12.52 21.13 12.26 21.18 12 21.18C11.74 21.18 11.48 21.13 11.23 21.02C10.99 20.92 10.77 20.77 10.58 20.58L2 12V2H12L20.59 10.59C20.97 10.98 21.18 11.5 21.18 12.04C21.18 12.58 20.97 13.1 20.59 13.49V13.41Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 7H7.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <input type="text" id="code" placeholder="Enter code (e.g., TCN)" required>
+        </div>
+        <div class="error-text">Code is required.</div>
+      </div>
 
-        <p>
-            <label>NAME:</label><br>
-            <input type="text" id="name" required>
-        </p>
+      <div class="field" id="field-name">
+        <label class="field-label">Name <span class="required">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.8"/></svg>
+          </span>
+          <input type="text" id="name" placeholder="Enter name (e.g., Tiruchendur)" required>
+        </div>
+        <div class="error-text">Name is required.</div>
+      </div>
 
-        <p>
-            <label>COMMAND:</label><br>
-            <textarea id="command" rows="4" cols="40"></textarea>
-        </p>
+      <div class="field">
+        <label class="field-label">Command</label>
+        <div class="input-wrap">
+          <span class="input-icon" style="align-self:flex-start;margin-top:2px;">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.6056 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47089C20.0052 6.94699 20.885 8.91568 21 11V11.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <textarea id="command" rows="3" placeholder="Enter command / description"></textarea>
+        </div>
+      </div>
 
-        <p>
-            <label>DATE:</label><br>
-            <input type="date" id="date">
-        </p>
+      <div class="field">
+        <div class="row2">
+          <div>
+            <label class="field-label">Date</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16 2V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8 2V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M3 10H21" stroke="currentColor" stroke-width="1.8"/></svg>
+              </span>
+              <input type="date" id="date">
+            </div>
+            <div class="hint">Default: Today's date</div>
+          </div>
+          <div>
+            <label class="field-label">Time</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7V12L15 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <input type="time" id="time">
+            </div>
+            <div class="hint">Default: Current time</div>
+          </div>
+        </div>
+      </div>
 
-        <p>
-            <label>TIME:</label><br>
-            <input type="time" id="time">
-        </p>
+      <div class="field" id="field-files">
+        <label class="field-label">Upload Files <span class="required">*</span></label>
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="files" multiple accept=".dwg,.dxf,.csv,.txt">
+          <div class="dropzone-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 18C4.79086 18 3 16.2091 3 14C3 11.9265 4.55399 10.2154 6.55953 10.0233C6.51356 9.6866 6.5 9.34567 6.5 9C6.5 5.68629 9.18629 3 12.5 3C15.5675 3 18.1005 5.31413 18.4592 8.28901C20.5116 8.83912 22 10.7137 22 12.9375C22 15.5537 19.9445 17.6753 17.3475 17.7935" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 21V11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 14L12 11L15 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="dropzone-title">Drag &amp; drop files here, or click to select</div>
+          <div class="dropzone-sub">
+            Allowed: .dwg, .dxf, .csv, .txt<br>
+            You can select multiple files
+          </div>
+        </div>
+        <div class="file-list" id="fileList" style="display:none;"></div>
+        <div class="file-count-hint">Maximum 10 files</div>
+        <div class="error-text">Please add at least one file.</div>
+      </div>
 
-        <p>
-            <label>UPLOAD FILES:</label><br>
-            <input
-                type="file"
-                id="files"
-                multiple
-                accept=".dwg,.dxf,.csv,.txt"
-            >
-        </p>
-
-        <p id="fileList"></p>
-
-        <button type="submit">SUBMIT</button>
-
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Submit to Channel
+      </button>
     </form>
 
-    <hr>
+    <div class="info-card">
+      <div class="info-head">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 16V12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg>
+        How it works (For Testing UI)
+      </div>
+      <ol>
+        <li>Fill the form with CODE, NAME, COMMAND.</li>
+        <li>Select DATE (default today) and TIME (default now).</li>
+        <li>Choose multiple files (.dwg, .dxf, .csv, .txt).</li>
+        <li>Click Submit. (This UI sends data to your bot/server — integrate API later.)</li>
+      </ol>
+    </div>
+  </main>
 
-    <pre id="result"></pre>
+  <footer>
+    VID Mini App UI Test &bull; HTML/JS<br>
+    &copy; 2026
+  </footer>
+</div>
 
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.6281 1.87979 13.4881 2.02168 11.3363C2.16356 9.18449 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.76488 14.1003 1.98232 16.07 2.86" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText">Submitted</span>
+</div>
 
-    <script>
+<script>
+  const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+  if (tg) { tg.ready(); tg.expand(); }
 
-        // Set today's date and current time
-        const now = new Date();
+  const dateInput = document.getElementById('date');
+  const timeInput = document.getElementById('time');
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  dateInput.value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+  timeInput.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
 
-        const date = now.toISOString().split("T")[0];
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('files');
+  const fileListEl = document.getElementById('fileList');
+  const MAX_FILES = 10;
+  let selectedFiles = [];
 
-        const hours = String(now.getHours()).padStart(2, "0");
-        const minutes = String(now.getMinutes()).padStart(2, "0");
-        const time = hours + ":" + minutes;
+  const ICONS = {
+    dwg: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+    csv: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#fff" stroke-width="1.8"/><path d="M3 9H21" stroke="#fff" stroke-width="1.8"/><path d="M9 9V20" stroke="#fff" stroke-width="1.8"/></svg>',
+    txt: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 13H16" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M8 17H13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>'
+  };
 
-        document.getElementById("date").value = date;
-        document.getElementById("time").value = time;
+  function extOf(name){
+    return (name.split('.').pop() || '').toLowerCase();
+  }
+  function iconClassFor(ext){
+    if (ext === 'dwg' || ext === 'dxf') return 'dwg';
+    if (ext === 'csv') return 'csv';
+    if (ext === 'txt') return 'txt';
+    return 'other';
+  }
+  function iconSvgFor(ext){
+    if (ext === 'dwg' || ext === 'dxf') return ICONS.dwg;
+    if (ext === 'csv') return ICONS.csv;
+    if (ext === 'txt') return ICONS.txt;
+    return ICONS.txt;
+  }
+  function formatSize(bytes){
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(2) + ' KB';
+    return (bytes/(1024*1024)).toFixed(2) + ' MB';
+  }
 
+  function renderFiles(){
+    if (selectedFiles.length === 0){
+      fileListEl.style.display = 'none';
+      fileListEl.innerHTML = '';
+      return;
+    }
+    fileListEl.style.display = 'block';
+    fileListEl.innerHTML = selectedFiles.map((file, idx) => {
+      const ext = extOf(file.name);
+      const cls = iconClassFor(ext);
+      return `
+        <div class="file-row" data-idx="${idx}">
+          <div class="file-icon ${cls}">${iconSvgFor(ext)}</div>
+          <div class="file-meta">
+            <div class="file-name">${file.name}</div>
+            <div class="file-size">${formatSize(file.size)}</div>
+          </div>
+          <button type="button" class="file-remove" data-remove="${idx}" aria-label="Remove file">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 6L18 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </button>
+        </div>`;
+    }).join('');
+  }
 
-        // Show selected files
-        document.getElementById("files").addEventListener("change", function () {
+  function addFiles(fileArray){
+    for (const f of fileArray){
+      if (selectedFiles.length >= MAX_FILES) break;
+      const dup = selectedFiles.some(sf => sf.name === f.name && sf.size === f.size);
+      if (!dup) selectedFiles.push(f);
+    }
+    renderFiles();
+    clearFieldError('field-files');
+  }
 
-            let output = "Selected Files:\n";
+  fileInput.addEventListener('change', function(){
+    addFiles(Array.from(this.files));
+    this.value = '';
+  });
 
-            for (const file of this.files) {
-                output += file.name + "\n";
-            }
+  ['dragenter','dragover'].forEach(evt => {
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+  });
+  ['dragleave','drop'].forEach(evt => {
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+    });
+  });
+  dropzone.addEventListener('drop', e => {
+    if (e.dataTransfer && e.dataTransfer.files){
+      addFiles(Array.from(e.dataTransfer.files));
+    }
+  });
 
-            document.getElementById("fileList").textContent = output;
-        });
+  fileListEl.addEventListener('click', function(e){
+    const btn = e.target.closest('[data-remove]');
+    if (!btn) return;
+    const idx = Number(btn.dataset.remove);
+    selectedFiles.splice(idx, 1);
+    renderFiles();
+  });
 
+  function showFieldError(id){
+    document.getElementById(id).classList.add('has-error');
+  }
+  function clearFieldError(id){
+    document.getElementById(id).classList.remove('has-error');
+  }
 
-        // Submit test
-        document.getElementById("publishForm").addEventListener("submit", function (event) {
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toastText');
+  function showToast(msg){
+    toastText.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2600);
+  }
 
-            event.preventDefault();
+  const form = document.getElementById('publishForm');
+  const submitBtn = document.getElementById('submitBtn');
 
-            const code = document.getElementById("code").value;
-            const name = document.getElementById("name").value;
-            const command = document.getElementById("command").value;
-            const date = document.getElementById("date").value;
-            const time = document.getElementById("time").value;
-            const files = document.getElementById("files").files;
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
 
+    const code = document.getElementById('code').value.trim();
+    const name = document.getElementById('name').value.trim();
+    const command = document.getElementById('command').value.trim();
+    const date = dateInput.value;
+    const time = timeInput.value;
 
-            let result = "";
+    let valid = true;
+    clearFieldError('field-code');
+    clearFieldError('field-name');
+    clearFieldError('field-files');
 
-            result += "CODE: " + code + "\n";
-            result += "NAME: " + name + "\n";
-            result += "COMMAND: " + command + "\n";
-            result += "DATE: " + date + "\n";
-            result += "TIME: " + time + "\n\n";
+    if (!code){ showFieldError('field-code'); valid = false; }
+    if (!name){ showFieldError('field-name'); valid = false; }
+    if (selectedFiles.length === 0){ showFieldError('field-files'); valid = false; }
 
-            result += "FILES:\n";
+    if (!valid) return;
 
-            for (const file of files) {
-                result += "- " + file.name + "\n";
-            }
+    const payload = {
+      code, name, command, date, time,
+      files: selectedFiles.map(f => ({ name: f.name, size: f.size }))
+    };
+    console.log('VID Publish payload:', payload);
 
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
 
-            document.getElementById("result").textContent = result;
-
-            console.log(result);
-
-        });
-
-    </script>
-
+    // Placeholder for real API/bot integration
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Submit to Channel';
+      showToast('Submitted to channel');
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+    }, 700);
+  });
+</script>
 </body>
 </html>
